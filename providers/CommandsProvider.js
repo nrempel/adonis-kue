@@ -4,7 +4,7 @@ const ServiceProvider = require('adonis-fold').ServiceProvider;
 
 class CommandsProvider extends ServiceProvider {
   * register () {
-    this.app.bind('Adonis/Commands/Queue', function () {
+    this.app.bind('Adonis/Commands/Kue', function () {
       return require('../src/Commands/Listen');
     });
   }
