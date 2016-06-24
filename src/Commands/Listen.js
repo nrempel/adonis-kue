@@ -1,15 +1,16 @@
 'user strict';
 
 const Ioc = require('adonis-fold').Ioc;
-const Command = Ioc.use('Adonis/Src/Command');
+const Command = Ioc.use('Adonis/Src/Kue');
 
 class Listen extends Command {
 
   static get inject () {
-    return ["Adonis/Addons/Kue"];
+    return ['Adonis/Addons/Kue'];
   }
 
   constructor (Kue) {
+    super();
     this.kue = Kue;
   }
 
