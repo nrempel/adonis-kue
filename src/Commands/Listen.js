@@ -1,8 +1,14 @@
 'user strict';
 
-const Ioc = require('adonis-fold').Ioc;
-
 class Listen {
+
+  static get inject () {
+    return ["Adonis/Addons/Kue"]
+  }
+
+  constructor (Kue) {
+    this.kue = Kue
+  }
 
   static get signature () {
     return '{name}';
@@ -13,7 +19,6 @@ class Listen {
   }
 
   * handle (options, flags) {
-    const Kue = Ioc.use('Adonis/Addons/Kue');
-    Kue.listen();
+    this.kue.listen();
   }
 }
