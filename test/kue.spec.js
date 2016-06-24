@@ -12,6 +12,24 @@ const Helpers = {
   }
 };
 
+const HelpersNoKey = {
+  appPath: function () {
+    return path.join(__dirname, './app_no_key');
+  }
+};
+
+const HelpersNoConcurrency = {
+  appPath: function () {
+    return path.join(__dirname, './app_no_concurrency');
+  }
+};
+
+const HelpersBadConcurrency = {
+  appPath: function () {
+    return path.join(__dirname, './app_bad_concurrency');
+  }
+};
+
 const Config = {
   get: function () {
     return {};
@@ -20,14 +38,22 @@ const Config = {
 
 describe('Kue', function () {
   
-  it('Should be able to dispatch jobs', function * () {
+  it('Should be able to dispatch jobs with data', function * () {
     this.timeout(0);
     const kue = new Kue(Helpers, Config);
-    const Job = require('./app/Jobs/DoTestWork');
+    const Job = require('./app/Jobs/GoodJob');
     const data = { test: 'data' };
     const job = kue.dispatch(Job.key, data);
     expect(job.type).to.equal(Job.key);
     expect(job.data).to.equal(data);
+  });
+
+  it('Should be able to dispatch jobs with no data', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const job = kue.dispatch(Job.key);
+    expect(job.type).to.equal(Job.key);
   });
 
   it('Should instantiate correctly', function * () {
@@ -42,6 +68,26 @@ describe('Kue', function () {
     const kue = new Kue(Helpers, Config);
     kue.listen();
     expect(kue.instance).to.exist;
+    expect(kue.registeredJobs.length).to.equal(1);
+  });
+
+  it('Should fail if job does not provide key', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersNoKey, Config);
+    expect(function () { kue.listen() }).to.throw();
+  });
+
+  it('Should default concurrency to 1 if none provided', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersNoConcurrency, Config);
+    kue.listen();
+    expect(kue.registeredJobs[0].concurrency).to.equal(1);
+  });
+
+  it('Should fail if job provides invalid concurrency', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersBadConcurrency, Config);
+    expect(function () { kue.listen() }).to.throw();
   });
 
 });

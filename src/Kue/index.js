@@ -17,6 +17,7 @@ class Kue {
       throw new Error('Specify connection under config/kue file');
     }
     this.instance = null;
+    this.registeredJobs = [];
   }
 
   /**
@@ -65,6 +66,8 @@ class Kue {
       if (typeof Job.concurrency !== 'number') {
         throw new Error(`Job concurrency value must be a number but instead it is: <${Job.concurrency}>`);
       }
+
+      this.registeredJobs.push(Job);
 
       // Register job handler
       this.instance.process(Job.key, Job.concurrency, Job.handle);
