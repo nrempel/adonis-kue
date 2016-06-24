@@ -14,6 +14,7 @@ class Kue {
     }
     this.instance = kue.createQueue(connectionSettings);
   }
+
 }
 
-module.exports = Database;
+module.exports = Kue;
