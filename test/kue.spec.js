@@ -18,6 +18,12 @@ const HelpersNoKey = {
   }
 };
 
+const HelpersNoHandler = {
+  appPath: function () {
+    return path.join(__dirname, './app_no_handler');
+  }
+};
+
 const HelpersNoConcurrency = {
   appPath: function () {
     return path.join(__dirname, './app_no_concurrency');
@@ -33,6 +39,12 @@ const HelpersBadConcurrency = {
 const HelpersNoJobs = {
   appPath: function () {
     return path.join(__dirname, './app_no_jobs');
+  }
+};
+
+const HelpersBadJobFile = {
+  appPath: function () {
+    return path.join(__dirname, './app_bad_job_file');
   }
 };
 
@@ -116,8 +128,20 @@ describe('Kue', function () {
     expect(function () { kue.listen() }).not.to.throw();
   });
 
+  it('Should ignore invalid job file types', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersBadJobFile, Config);
+    kue.listen();
+    expect(function () { kue.listen() }).not.to.throw();
+  });
 
   it('Should fail if job does not provide key', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersNoHandler, Config);
+    expect(function () { kue.listen() }).to.throw();
+  });
+
+  it('Should fail if job does not provide handler', function * () {
     this.timeout(0);
     const kue = new Kue(HelpersNoKey, Config);
     expect(function () { kue.listen() }).to.throw();

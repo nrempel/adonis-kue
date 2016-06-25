@@ -41,7 +41,7 @@ class Kue {
    */
   dispatch(key, data) {
     if (typeof key !== 'string') {
-      throw new Error('Expected job key to be of type string but got <' + typeof key + '>.');
+      throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
     const instance = this.getInstance();
     return instance.create(key, data).save(err => {
@@ -63,31 +63,45 @@ class Kue {
 
     try {
       const jobFiles = fs.readdirSync(this.jobsPath);
-
       jobFiles.forEach(file => {
         const filePath = path.join(this.jobsPath, file);
-        const Job = require(filePath);
+        try {
+          const Job = require(filePath);
 
-        // Every job must expose a key
-        if (!Job.key) {
-          throw new Error(`No key found for job: ${filePath}`);
+          // Every job must expose a key
+          if (!Job.key) {
+            throw new Error(`No key found for job: ${filePath}`);
+          }
+
+          // If job concurrency is not set, default to 1
+          if (Job.concurrency === undefined) {
+            Job.concurrency = 1;
+          }
+
+          // If job concurrecny is set to an invalid value, throw error
+          if (typeof Job.concurrency !== 'number') {
+            throw new Error(`Job concurrency value must be a number but instead it is: <${Job.concurrency}>`);
+          }
+
+          // Every job must expose a handle function
+          if (!Job.handle) {
+            throw new Error(`No handler found for job: ${filePath}`);
+          }
+
+          // Track currently registered jobs in memory
+          this.registeredJobs.push(Job);
+
+          // Register job handler
+          this.instance.process(Job.key, Job.concurrency, Job.handle);
+        } catch (e) {
+          // If this file is not a valid javascript class, print warning and return
+          if (e instanceof ReferenceError) {
+            this.logger.warn('Unable to import job class <%s>. Is it a valid javascript class?', file);
+            return;
+          } else {
+            throw e;
+          }
         }
-
-        // If job concurrency is not set, default to 1
-        if (Job.concurrency === undefined) {
-          Job.concurrency = 1;
-        }
-
-        // If job concurrecny is set to an invalid value, throw error
-        if (typeof Job.concurrency !== 'number') {
-          throw new Error(`Job concurrency value must be a number but instead it is: <${Job.concurrency}>`);
-        }
-
-        // Track currently registered jobs in memory
-        this.registeredJobs.push(Job);
-
-        // Register job handler
-        this.instance.process(Job.key, Job.concurrency, Job.handle);
       });
 
       this.logger.info('starting kue listener for %d jobs', this.registeredJobs.length);
