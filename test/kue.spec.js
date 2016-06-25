@@ -30,6 +30,12 @@ const HelpersBadConcurrency = {
   }
 };
 
+const HelpersNoJobs = {
+  appPath: function () {
+    return path.join(__dirname, './app_no_jobs');
+  }
+};
+
 const HelpersNoJobsDir = {
   appPath: function () {
     return path.join(__dirname, './app_no_jobs_dir');
@@ -39,6 +45,12 @@ const HelpersNoJobsDir = {
 const Config = {
   get: function () {
     return {};
+  }
+};
+
+const NoConfig = {
+  get: function () {
+    return null;
   }
 };
 
@@ -62,6 +74,13 @@ describe('Kue', function () {
     expect(job.type).to.equal(Job.key);
   });
 
+  it('Should fail gracefully if dispatch is called with no key', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    expect(function () { kue.dispatch() }).to.throw();
+  });
+
   it('Should instantiate correctly', function * () {
     this.timeout(0);
     const kue = new Kue(Helpers, Config);
@@ -69,12 +88,25 @@ describe('Kue', function () {
     expect(kue.jobsPath).to.equal(path.join(Helpers.appPath(), 'Jobs'));
   });
   
+  it('Should throw an error if no config exists', function * () {
+    this.timeout(0);
+    expect(function () { new Kue(Helpers, NoConfig) }).to.throw();
+  });
+
   it('Should load jobs correctly', function * () {
     this.timeout(0);
     const kue = new Kue(Helpers, Config);
     kue.listen();
     expect(kue.instance).to.exist;
     expect(kue.registeredJobs.length).to.equal(1);
+  });
+
+  it('Should load correctly if no jobs exist', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersNoJobs, Config);
+    kue.listen();
+    expect(kue.instance).to.exist;
+    expect(kue.registeredJobs.length).to.equal(0);
   });
 
   it('Should fail to load gracefully if there is no jobs directory', function * () {
@@ -103,5 +135,23 @@ describe('Kue', function () {
     const kue = new Kue(HelpersBadConcurrency, Config);
     expect(function () { kue.listen() }).to.throw();
   });
+
+  it('Should throw an informative error if instance.create fails', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    kue.listen();
+    kue.instance.create = function () {
+      return {
+        save: function (func) {
+          func(new Error('test error'));
+        }
+      }
+    };
+
+    expect(function () { kue.dispatch(Job.key, data) }).to.throw();
+  });
+
 
 });

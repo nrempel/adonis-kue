@@ -4,7 +4,7 @@
   "description": "Kue provider for the Adonis framework",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha --report lcovonly -- -R spec test && cat ./coverage/lcov.info",
+    "test": "istanbul cover _mocha -- -R spec test",
     "coverage": "istanbul cover ./node_modules/.bin/_mocha test",
     "eslint": "eslint ."
   },

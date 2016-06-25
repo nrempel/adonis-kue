@@ -34,10 +34,21 @@ class Kue {
     return this.instance;
   }
 
+  /**
+   * Dispatch a new job.
+   *
+   * @public
+   */
   dispatch(key, data) {
+    if (typeof key !== 'string') {
+      throw new Error('Expected job key to be of type string but got <' + typeof key + '>.');
+    }
     const instance = this.getInstance();
     return instance.create(key, data).save(err => {
-       if( err ) console.log( err );
+       if (err) {
+        this.logger.error('An error has occurred while creating a Kue job.');
+        throw err;
+      }
     });
   }
 
@@ -72,19 +83,21 @@ class Kue {
           throw new Error(`Job concurrency value must be a number but instead it is: <${Job.concurrency}>`);
         }
 
+        // Track currently registered jobs in memory
         this.registeredJobs.push(Job);
 
         // Register job handler
         this.instance.process(Job.key, Job.concurrency, Job.handle);
       });
 
-      this.logger.info('kue job listener started for %d jobs', this.registeredJobs.length);
+      this.logger.info('starting kue listener for %d jobs', this.registeredJobs.length);
 
     } catch (e) {
       // If the directory isn't found, log a message and exit gracefully
       if (e.code === 'ENOENT') {
         this.logger.info('The jobs directory <%s> does not exist. Exiting.', this.jobsPath);
       } else {
+        // If it's some other error, bubble up exception
         throw e;
       }
     }
