@@ -30,6 +30,12 @@ const HelpersBadConcurrency = {
   }
 };
 
+const HelpersNoJobsDir = {
+  appPath: function () {
+    return path.join(__dirname, './app_no_jobs_dir');
+  }
+};
+
 const Config = {
   get: function () {
     return {};
@@ -70,6 +76,14 @@ describe('Kue', function () {
     expect(kue.instance).to.exist;
     expect(kue.registeredJobs.length).to.equal(1);
   });
+
+  it('Should fail to load gracefully if there is no jobs directory', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersNoJobsDir, Config);
+    kue.listen();
+    expect(function () { kue.listen() }).not.to.throw();
+  });
+
 
   it('Should fail if job does not provide key', function * () {
     this.timeout(0);

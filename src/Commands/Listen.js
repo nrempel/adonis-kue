@@ -11,7 +11,7 @@ class Listen extends Command {
   }
 
   get signature () {
-    return 'queue:listen';
+    return 'kue:listen';
   }
 
   get description () {
