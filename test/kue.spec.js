@@ -168,10 +168,14 @@ describe('Kue', function () {
     kue.listen();
     kue.instance.create = function () {
       return {
-        save: function (func) {
-          func(new Error('test error'));
+        removeOnComplete: function () {
+          return {
+            save: function (func) {
+              func(new Error('test error'));
+            }  
+          };
         }
-      }
+      };
     };
 
     expect(function () { kue.dispatch(Job.key, data) }).to.throw();

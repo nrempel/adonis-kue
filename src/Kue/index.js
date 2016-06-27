@@ -44,7 +44,7 @@ class Kue {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
     const instance = this.getInstance();
-    return instance.create(key, data).save(err => {
+    return instance.create(key, data).removeOnComplete(true).save(err => {
        if (err) {
         this.logger.error('An error has occurred while creating a Kue job.');
         throw err;
@@ -58,7 +58,6 @@ class Kue {
    * @public
    */
   listen () {
-    // this.log.info('Starting queue listener %s:%s', host, port)
     const instance = this.getInstance();
 
     try {
