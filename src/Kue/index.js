@@ -103,9 +103,7 @@ class Kue {
           }
         }
       });
-
-      this.logger.info('starting kue listener for %d jobs', this.registeredJobs.length);
-
+      this.logger.info('kue worker listening for %d jobs', this.registeredJobs.length);
     } catch (e) {
       // If the directory isn't found, log a message and exit gracefully
       if (e.code === 'ENOENT') {
