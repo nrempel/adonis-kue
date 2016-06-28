@@ -92,7 +92,7 @@ class Kue {
           this.registeredJobs.push(Job);
 
           // Register job handler
-          this.instance.process(Job.key, Job.concurrency, jobInstance.handle);
+          this.instance.process(Job.key, Job.concurrency, jobInstance.handle.bind(jobInstance));
         } catch (e) {
           // If this file is not a valid javascript class, print warning and return
           if (e instanceof ReferenceError) {
