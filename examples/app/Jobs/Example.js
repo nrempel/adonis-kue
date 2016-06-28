@@ -15,7 +15,7 @@ class Example {
 
   // This is where the work is done. You can retrieve the data passed
   // in job.data. You must call done() when the job should complete.
-  static handle(job, done) {
+  handle(job, done) {
     done();
   }
 

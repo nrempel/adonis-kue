@@ -72,13 +72,13 @@ The provider looks for jobs in the `app/Jobs` directory of your AdonisJS project
 
 ### Creating your first job
 
-Jobs are easy to create. They live in `app/Jobs` and they are a simple class. They expose the following `static` properties:
+Jobs are easy to create. They live in `app/Jobs` and they are a simple class. They expose the following properties:
 
-| Name        | Required | type      | Description                                           |
-|-------------|----------|-----------|-------------------------------------------------------|
-| concurrency | false    | number    | The number of concurrent jobs the handler will accept |
-| key         | true     | string    | A unique key for this job                             |
-| handle      | true     | function  | A function that is called for this job.               |
+| Name        | Required | Type      | Static | Description                                           |
+|-------------|----------|-----------|--------|-----------------------------------------------|
+| concurrency | false    | number    | true   | The number of concurrent jobs the handler will accept |
+| key         | true     | string    | true   | A unique key for this job                             |
+| handle      | true     | function  | false  | A function that is called for this job.               |
 
 [Here's an example.](examples/app/Jobs/Example.js)
 
