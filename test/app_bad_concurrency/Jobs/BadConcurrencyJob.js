@@ -10,7 +10,7 @@ class BadConcurrencyJob {
     return '2';
   }
 
-  static handle(job, done) {
+  handle(job, done) {
     done();
   }
 

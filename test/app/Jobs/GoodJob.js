@@ -10,7 +10,7 @@ class GoodJob {
     return 'good-job';
   }
 
-  static handle(job, done) {
+  handle(job, done) {
     done();
   }
 

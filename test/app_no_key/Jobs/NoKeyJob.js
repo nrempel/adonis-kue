@@ -6,7 +6,7 @@ class NoKeyJob {
     return 1;
   }
 
-  static handle(job, done) {
+  handle(job, done) {
     done();
   }
 

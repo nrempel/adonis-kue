@@ -5,6 +5,7 @@ const kue = require('kue');
 const path = require('path');
 const CatLog = require('cat-log');
 const logger = new CatLog('adonis:kue');
+const Ioc = require('adonis-fold').Ioc;
 
 /**
  * @module Kue
@@ -66,6 +67,9 @@ class Kue {
         const filePath = path.join(this.jobsPath, file);
         try {
           const Job = require(filePath);
+          
+          // Get instance of job class
+          const jobInstance = Ioc.make(Job);
 
           // Every job must expose a key
           if (!Job.key) {
@@ -83,7 +87,7 @@ class Kue {
           }
 
           // Every job must expose a handle function
-          if (!Job.handle) {
+          if (!jobInstance.handle) {
             throw new Error(`No handler found for job: ${filePath}`);
           }
 
@@ -91,7 +95,7 @@ class Kue {
           this.registeredJobs.push(Job);
 
           // Register job handler
-          this.instance.process(Job.key, Job.concurrency, Job.handle);
+          this.instance.process(Job.key, Job.concurrency, jobInstance.handle);
         } catch (e) {
           // If this file is not a valid javascript class, print warning and return
           if (e instanceof ReferenceError) {

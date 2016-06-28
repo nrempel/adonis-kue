@@ -6,7 +6,7 @@ class NoConcurrencyJob {
     return 'no-concurrency-job';
   }
 
-  static handle(job, done) {
+  handle(job, done) {
     done();
   }
 
