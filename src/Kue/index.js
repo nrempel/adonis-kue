@@ -20,7 +20,7 @@ class Kue {
     if (!this.connectionSettings) {
       throw new Error('Specify connection under config/kue file');
     }
-    this.instance = null;
+    this._instance = null;
     this.registeredJobs = [];
   }
 
@@ -28,11 +28,11 @@ class Kue {
    * @returns {*}
    * @public
    */
-  getInstance () {
-    if (!this.instance) {
-      this.instance = kue.createQueue(this.connectionSettings);
+  get instance () {
+    if (!this._instance) {
+      this._instance = kue.createQueue(this.connectionSettings);
     }
-    return this.instance;
+    return this._instance;
   }
 
   /**
@@ -44,8 +44,7 @@ class Kue {
     if (typeof key !== 'string') {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
-    const instance = this.getInstance();
-    return instance.create(key, data).removeOnComplete(true).save(err => {
+    return this.instance.create(key, data).removeOnComplete(true).save(err => {
        if (err) {
         this.logger.error('An error has occurred while creating a Kue job.');
         throw err;
@@ -59,8 +58,6 @@ class Kue {
    * @public
    */
   listen () {
-    const instance = this.getInstance();
-
     try {
       const jobFiles = fs.readdirSync(this.jobsPath);
       jobFiles.forEach(file => {
