@@ -93,8 +93,8 @@ class Kue {
           this.registeredJobs.push(Job);
 
           // Register job handler
-          this.instance.process(Job.key, Job.concurrency, done => {
-            co(jobInstance.handle.bind(jobInstance)).then(() => { done() });
+          this.instance.process(Job.key, Job.concurrency, function (job, done) {
+            co(jobInstance.handle.bind(jobInstance), job.data).then(() => { done() });
           });
 
         } catch (e) {
