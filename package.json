@@ -1,6 +1,6 @@
 {
   "name": "adonis-kue",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Kue provider for the Adonis framework",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "Nicholas Rempel <nbrempel@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "co": "^4.6.0",
     "kue": "^0.11.1"
   },
   "peerDependencies": {

@@ -1,5 +1,6 @@
 'use strict';
 
+const co = require('co');
 const fs = require('fs');
 const kue = require('kue');
 const path = require('path');
@@ -92,7 +93,7 @@ class Kue {
           this.registeredJobs.push(Job);
 
           // Register job handler
-          this.instance.process(Job.key, Job.concurrency, jobInstance.handle.bind(jobInstance));
+          this.instance.process(Job.key, Job.concurrency, co.wrap(jobInstance.handle.bind(jobInstance)));
         } catch (e) {
           // If this file is not a valid javascript class, print warning and return
           if (e instanceof ReferenceError) {
