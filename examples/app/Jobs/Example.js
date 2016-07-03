@@ -13,10 +13,9 @@ class Example {
     return 'example-job';
   }
 
-  // This is where the work is done. You can retrieve the data passed
-  // in job.data. You must call done() when the job should complete.
-  handle(job, done) {
-    done();
+  // This is where the work is done. 
+  *handle(data) {
+    
   }
 
 }
