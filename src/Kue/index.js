@@ -93,13 +93,17 @@ class Kue {
           this.registeredJobs.push(Job);
 
           // Register job handler
-          this.instance.process(Job.key, Job.concurrency, co.wrap(jobInstance.handle.bind(jobInstance)));
+          this.instance.process(Job.key, Job.concurrency, done => {
+            co(jobInstance.handle.bind(jobInstance)).then(() => { done() });
+          });
+
         } catch (e) {
           // If this file is not a valid javascript class, print warning and return
           if (e instanceof ReferenceError) {
             this.logger.warn('Unable to import job class <%s>. Is it a valid javascript class?', file);
             return;
           } else {
+            this.logger.error(e);
             throw e;
           }
         }
@@ -111,6 +115,7 @@ class Kue {
         this.logger.info('The jobs directory <%s> does not exist. Exiting.', this.jobsPath);
       } else {
         // If it's some other error, bubble up exception
+        this.logger.error(e);
         throw e;
       }
     }
