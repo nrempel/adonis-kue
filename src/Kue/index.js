@@ -94,7 +94,16 @@ class Kue {
 
           // Register job handler
           this.instance.process(Job.key, Job.concurrency, function (job, done) {
-            co(jobInstance.handle.bind(jobInstance), job.data).then(() => { done() });
+            co(jobInstance.handle.bind(jobInstance), job.data)
+              .then(() => { done() })
+              .catch(error => {
+                logger.error(
+                  'Error processing job. ' +
+                  `type=${job.type} id=${job.id}`
+                );
+                console.error(error);
+                done();
+              });
           });
 
         } catch (e) {

@@ -10,8 +10,7 @@ class GoodJob {
     return 'good-job';
   }
 
-  handle(job, done) {
-    done();
+  handle(data) {
   }
 
 }

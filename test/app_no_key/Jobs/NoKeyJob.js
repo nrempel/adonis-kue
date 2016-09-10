@@ -6,8 +6,7 @@ class NoKeyJob {
     return 1;
   }
 
-  handle(job, done) {
-    done();
+  handle() {
   }
 
 }

@@ -12,6 +12,12 @@ const Helpers = {
   }
 };
 
+const HelpersError = {
+  appPath: function () {
+    return path.join(__dirname, './app_error');
+  }
+};
+
 const HelpersNoKey = {
   appPath: function () {
     return path.join(__dirname, './app_no_key');
@@ -91,6 +97,17 @@ describe('Kue', function () {
     const kue = new Kue(Helpers, Config);
     const Job = require('./app/Jobs/GoodJob');
     expect(function () { kue.dispatch() }).to.throw();
+  });
+
+  it('Should fail gracefully if handler throws an error', function * () {
+    this.timeout(0);
+    const kue = new Kue(HelpersError, Config);
+    kue.listen();
+    const Job = require('./app_error/Jobs/ErrorJob');
+    const data = { test: 'data' };
+    const job = kue.dispatch(Job.key, data);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
   });
 
   it('Should instantiate correctly', function * () {

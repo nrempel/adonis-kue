@@ -6,8 +6,8 @@ class NoConcurrencyJob {
     return 'no-concurrency-job';
   }
 
-  handle(job, done) {
-    done();
+  handle() {
+    
   }
 
 }
