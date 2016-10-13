@@ -19,7 +19,7 @@ class Listen extends Command {
   }
 
   * handle (options, flags) {
-    yield this.kue.listen();
+    this.kue.listen();
   }
 }
 
