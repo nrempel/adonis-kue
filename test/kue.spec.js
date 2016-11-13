@@ -84,6 +84,19 @@ describe('Kue', function () {
     expect(job.data).to.equal(data);
   });
 
+  it('Should be able to wait on result of job', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    kue.listen();
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    const job = kue.dispatch(Job.key, data);
+    const result = yield job.result();
+    console.log('asdasdasd', result);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
+  });
+
   it('Should be able to dispatch jobs with no data', function * () {
     this.timeout(0);
     const kue = new Kue(Helpers, Config);

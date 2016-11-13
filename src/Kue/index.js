@@ -45,12 +45,23 @@ class Kue {
     if (typeof key !== 'string') {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
-    return this.instance.create(key, data).removeOnComplete(true).save(err => {
+    const job = this.instance.create(key, data).removeOnComplete(true).save(err => {
        if (err) {
         this.logger.error('An error has occurred while creating a Kue job.');
         throw err;
       }
     });
+
+    // Add promise proxy on job for complete event
+    job.result = () => {
+      return new Promise((resolve, reject) => {
+        job.on('complete', result => {
+          resolve(result);
+        });
+      });
+    }
+
+    return job;
   }
 
   /**
@@ -95,14 +106,14 @@ class Kue {
           // Register job handler
           this.instance.process(Job.key, Job.concurrency, function (job, done) {
             co(jobInstance.handle.bind(jobInstance), job.data)
-              .then(() => { done() })
+              .then(result => { done(null, result); })
               .catch(error => {
                 logger.error(
                   'Error processing job. ' +
                   `type=${job.type} id=${job.id}`
                 );
                 console.error(error);
-                done();
+                done(error);
               });
           });
 
