@@ -93,7 +93,7 @@ const data = { test: 'data' };
 const job = kue.dispatch(Job.key, data);
 
 // If you want to wait on the result, you can do this
-const result = yield job.result();
+const result = yield job.result;
 ```
 
 ## Thanks
