@@ -91,7 +91,7 @@ describe('Kue', function () {
     const Job = require('./app/Jobs/GoodJob');
     const data = { test: 'data' };
     const job = kue.dispatch(Job.key, data);
-    const result = yield job.result();
+    const result = yield job.result;
     console.log('asdasdasd', result);
     expect(job.type).to.equal(Job.key);
     expect(job.data).to.equal(data);

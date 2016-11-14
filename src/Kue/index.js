@@ -53,13 +53,11 @@ class Kue {
     });
 
     // Add promise proxy on job for complete event
-    job.result = () => {
-      return new Promise((resolve, reject) => {
-        job.on('complete', result => {
-          resolve(result);
-        });
+    job.result = new Promise((resolve, reject) => {
+      job.on('complete', result => {
+        resolve(result);
       });
-    }
+    });
 
     return job;
   }
