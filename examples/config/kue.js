@@ -1,11 +1,13 @@
-'use strict';
+'use strict'
+
+const Env = use('Env')
 
 module.exports = {
-  connection:{
-    prefix: 'q',
+  connection: {
+    prefix: 'q_',
     redis: {
-      host: 'localhost',
-      post: 6379
-    }
-  }
-};
+      host: Env.get('REDIS_HOST', '127.0.0.1'),
+      post: Env.get('REDIS_PORT', 6379),
+    },
+  },
+}
