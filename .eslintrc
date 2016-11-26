@@ -1,3 +1,10 @@
 {
-  "extends": "airbnb"
+  "extends": "airbnb-base",
+  "rules": {
+    "semi": ["error", "never"],
+    "space-before-function-paren": ["error", "always"],
+    no-underscore-dangle: ["error", {
+      "allowAfterThis": true
+    }]
+  }
 }

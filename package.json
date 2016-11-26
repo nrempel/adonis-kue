@@ -4,26 +4,30 @@
   "description": "Kue provider for the Adonis framework",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha -- -R spec test",
-    "coverage": "istanbul cover ./node_modules/.bin/_mocha test",
-    "eslint": "eslint ."
+    "test": "./node_modules/.bin/istanbul cover _mocha -- -R spec test",
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha test",
+    "eslint": "./node_modules/.bin/eslint ."
   },
   "author": "Nicholas Rempel <nbrempel@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "cat-log": "^1.0.2",
     "co": "^4.6.0",
-    "kue": "^0.11.1"
+    "kue": "^0.11.1",
+    "node-exceptions": "^1.0.3"
   },
   "peerDependencies": {
-    "adonis-fold": "^3.0.1"
+    "adonis-fold": "^3.0.3"
   },
   "devDependencies": {
-    "adonis-fold": "^3.0.1",
+    "adonis-fold": "^3.0.3",
     "chai": "^3.2.0",
     "co": "^4.6.0",
     "co-mocha": "^1.1.2",
     "coveralls": "^2.11.4",
-    "eslint-config-airbnb": "^9.0.1",
+    "eslint": "^3.11.0",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
     "istanbul": "^0.3.20",
     "mocha": "^2.3.2",
     "mocha-lcov-reporter": "0.0.2"
