@@ -9,13 +9,10 @@ module.exports = {
    * Get the path to the jobs folder
    *
    * @param {object} Adonis/Src/Helpers
-   * @param {object} Adonis/Src/Config
    * @return string
    */
-  getJobPath (Helpers, Config) {
-    const configPath = Config.get('kue.jobsPath')
-    module.exports.expectedButGot('jobsPath', 'string', configPath)
-    const jobsPath = path.join(Helpers.appPath(), configPath)
+  getJobsPath (Helpers) {
+    const jobsPath = path.join(Helpers.appPath(), 'Jobs')
 
     return path.normalize(jobsPath)
   },

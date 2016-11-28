@@ -1,35 +1,27 @@
 'use strict'
 
-const Env = use('Env')
 const Job = use('Job')
-const Mail = use('Mail')
-const Config = use('Config')
 
 class WelcomeEmailJob extends Job {
 
-  constructor () {
-    super(Config)
+  constructor (data, options) {
+    super(data, options)
 
-    this.type = 'welcome-email'
+    this.name = 'welcome-email'
     this.concurrency = 20
     this.attempts = 3
     this.delay = 60 * 60 * 1000 // 1 hour
   }
 
-  // handle method handles the email sending
   * handle (data) {
-    yield Mail.send('emails.welcome-email', data, (message) => {
-      message.to(data.user.email, data.user.name)
-      message.from(Env.get('DEFAULT_EMAIL'), Env.get('DEFAULT_EMAIL_NAME'))
-      message.subject('Welcome to our website!')
-    })
+      // send the welcom email here
   }
 
-  enqueueEvent (type) {
+  enqueueEvent (name) {
     // handle the enqueue event
   }
 
-  startEvent (type) {
+  startEvent (name) {
     // handle the start event
   }
 

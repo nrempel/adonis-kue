@@ -17,9 +17,8 @@ class Kue {
 
   constructor (Helpers, Config) {
     this.logger = new CatLog('adonis:kue')
-    this.jobsPath = util.getJobPath(Helpers, Config)
+    this.jobsPath = util.getJobsPath(Helpers)
     this.connectionSettings = util.getKueConnectionOptions(Config)
-    this._instance = null
     this.registeredJobs = []
   }
 
@@ -28,9 +27,10 @@ class Kue {
    * @public
    */
   get instance () {
-    if (!this._instance) {
+    if (typeof this._instance === 'undefined') {
       this._instance = kue.createQueue(this.connectionSettings)
     }
+
     return this._instance
   }
 
@@ -39,9 +39,9 @@ class Kue {
    *
    * @public
    */
-  dispatch (Job, data) {
+  dispatch (Job) {
     const job = this.instance
-      .create(Job.type, data)
+      .create(Job.name, Job.data)
       .delay(Job.delay)
       .events(Job.events)
       .priority(Job.priority)
@@ -90,27 +90,27 @@ class Kue {
           // Get instance of job class
           const jobInstance = new Job()
 
-          // Every job must expose a type
-          if (!jobInstance.type) {
-            throw new InvalidArgumentException(`No type found for job: ${filePath}`)
+          // Every job must expose a job name
+          if (!jobInstance.name) {
+            throw new InvalidArgumentException(`No job name found: ${filePath}`)
           }
 
           // Every job must expose a handle function
           if (!jobInstance.handle) {
-            throw new InvalidArgumentException(`No handler found for job: ${filePath}`)
+            throw new InvalidArgumentException(`No handler method found for job: ${filePath}`)
           }
 
           // Track currently registered jobs in memory
           this.registeredJobs.push(Job)
 
           // Register job handler
-          this.instance.process(jobInstance.type, jobInstance.concurrency, function (job, done) {
+          this.instance.process(jobInstance.name, jobInstance.concurrency, function (job, done) {
             co(jobInstance.handle.bind(jobInstance), job.data)
               .then((result) => {
                 done(null, result)
               })
               .catch((error) => {
-                logger.error(`Error processing job.\rtype=${job.type} id=${job.id}`)
+                logger.error(`Error processing job.\rname=${job.name} id=${job.id}`)
                 console.error(error)
                 done(error)
               })

@@ -60,22 +60,27 @@ Starting an instance of the kue listener is easy with the included ace command. 
 
 The provider looks for jobs in the jobs folder you specify in `config/kue.js` and will automatically register a handler for any jobs that it finds.
 
-### Job Options
+### Creating Jobs
 
-Jobs are easy to create. They expose the following properties:
+Jobs are easy to create. They accept two arguements: `data` and `options`.
 
-| Name             | Required | Type      | Description                                                                   |
-|------------------|----------|-----------|-------------------------------------------------------------------------------|
-| type             | true     | string    | A unique job type/name (eg. `my-email-job`)                                   |
-| concurrency      | false    | number    | The number of concurrent jobs the handler will accept                         |
-| removeOnComplete | false    | boolean   | Whether or not jobs will be removed from the queue upon completion?           |
-| events           | false    | boolean   | Enable/disable the firing of events for a job                                 |
-| priority         | false    | string    | Job priority. Options include: `low`, `normal`, `medium`, `high`, `critical`  |
-| delay            | false    | number    | The delay (in milliseconds) before a job is queued                            |
-| attempts         | false    | number    | the number of tries that should take place before a job is marked as failed.  |
-| handle           | true     | function  | A function that is called for each job.                                       |
+| Name             | Required | Type      | Default      | Description                                                                   |
+|------------------|----------|-----------|--------------|-------------------------------------------------------------------------------|
+| name             | true     | string    | (no default) | A unique job name (eg. `my-email-job`)                                   |
+| concurrency      | false    | number    | 1            | The number of concurrent jobs the handler will accept                         |
+| removeOnComplete | false    | boolean   | true         | Whether or not jobs will be removed from the queue upon completion?           |
+| events           | false    | boolean   | true         | Enable/disable the firing of events for a job                                 |
+| priority         | false    | string    | normal       | Job priority. Options include: `low`, `normal`, `medium`, `high`, `critical`  |
+| delay            | false    | number    | 0            | The delay (in milliseconds) before a job is queued                            |
+| attempts         | false    | number    | 1            | The number of tries that should take place before a job is marked as failed.  |
 
-[Here's an example.](examples/app/Jobs/Email-Example.js)
+Job options can either be specified when instaniating the job with `const job = new Job(data, options)`, or can simply added to the job class itself ([see the example.](examples/app/Jobs/Email-Example.js)).
+
+### Handling Jobs
+
+Each job created must include a `handle` generator function. This is where you can specify what action(s) the job should take.
+
+[See the example.](examples/app/Jobs/Email-Example.js)
 
 ### Handling Job Events
 
@@ -92,18 +97,18 @@ There are 8 event methods that are executed upon Kue firing their corresponding 
 | completeEvent         | complete        | false    | Fired when the job has been completed                        |
 | removeEvent           | remove          | false    | Fired when the job has been removed from the queue           |
 
-[Here's an example.](examples/app/Jobs/Email-Example.js)
+[See the example.](examples/app/Jobs/Email-Example.js)
 
 ### Dispatching jobs
 
-Now that your job listener is running and ready to do some asynchronous work, you can start dispatching jobs.
+Once your job listener is running and ready to do some asynchronous work, you can start dispatching jobs.
 
 ```javascript
-const kue = use('Kue')
-const Job = require('./app/Jobs/My-Job')
+const Kue = use('Kue')
+const Job = use('App/Jobs/WelcomEmailExample')
 
-const data = {test: 'data' }
-const job = kue.dispatch(new Job(), data)
+const data = {name: 'John Doe', email: 'john@example.com' }
+const job = Kue.dispatch(new Job(data))
 
 // If you want to wait on the result, you can do this
 const result = yield job.result;
