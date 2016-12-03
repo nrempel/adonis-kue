@@ -15,52 +15,52 @@ class Job {
    * @param {object} options
    * @return void
    */
-   _instantiate(data, options) {
+  _instantiate (data, options) {
     this.data = (typeof data === 'undefined') ? {} : data
 
-     this._setPropValue('delay', options, 0)
-     this._setPropValue('events', options, true)
-     this._setPropValue('attempts', options, 1)
-     this._setPropValue('priority', options, 'normal')
-     this._setPropValue('concurrency', options, 1)
-     this._setPropValue('removeOnComplete', options, true)
-   }
+    this._setPropValue('delay', options, 0)
+    this._setPropValue('events', options, true)
+    this._setPropValue('attempts', options, 1)
+    this._setPropValue('priority', options, 'normal')
+    this._setPropValue('concurrency', options, 1)
+    this._setPropValue('removeOnComplete', options, true)
+  }
 
-   /**
-    * Sets the default value for given property, if no value supplied
-    *
-    * @param {string} prop
-    * @param {object} options
-    * @param {mixed} defaultValue
-    * @return void
-    */
-   _setPropValue(prop, options, defaultValue) {
-     this[prop] = (typeof options === 'undefined')
+  /**
+   * Sets the default value for given property, if no value supplied
+   *
+   * @param {string} prop
+   * @param {object} options
+   * @param {mixed} defaultValue
+   * @return void
+   */
+  _setPropValue (prop, options, defaultValue) {
+    this[prop] = (typeof options === 'undefined')
                     ? defaultValue
                     : (typeof options[prop] === 'undefined')
                       ? defaultValue
                       : options[prop]
-   }
+  }
 
    /**
     * Get data
     *
     * @return object
     */
-   get data () {
-     return this._data
-   }
+  get data () {
+    return this._data
+  }
 
-   /**
-    * Set data
-    *
-    * @param {object} data
-    * @return void
-    */
-   set data (data) {
-     util.expectedButGot('job data', 'object', data)
-     this._data = data
-   }
+  /**
+   * Set data
+   *
+   * @param {object} data
+   * @return void
+   */
+  set data (data) {
+    util.expectedButGot('job data', 'object', data)
+    this._data = data
+  }
 
   /**
    * Get name

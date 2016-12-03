@@ -1,18 +1,18 @@
-'use strict';
+'use strict'
 
 class BadConcurrencyJob {
 
-  static get key() {
-    return 'bad-concurrency-job';
+  static get key () {
+    return 'bad-concurrency-job'
   }
 
-  static get concurrency() {
-    return '2';
+  static get concurrency () {
+    return '2'
   }
 
-  handle() {
+  handle () {
   }
 
 }
 
-module.exports = BadConcurrencyJob;
+module.exports = BadConcurrencyJob

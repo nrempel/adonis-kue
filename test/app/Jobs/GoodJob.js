@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
 class GoodJob {
 
-  static get concurrency() {
-    return 1;
+  static get concurrency () {
+    return 1
   }
 
-  static get key() {
-    return 'good-job';
+  static get key () {
+    return 'good-job'
   }
 
-  * handle(data) {
-    return 'test result';
+  * handle (data) {
+    return 'test result'
   }
 
 }
 
-module.exports = GoodJob;
+module.exports = GoodJob

@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
 class NoConcurrencyJob {
 
-  static get key() {
-    return 'no-concurrency-job';
+  static get key () {
+    return 'no-concurrency-job'
   }
 
-  handle() {
-    
+  handle () {
+
   }
 
 }
 
-module.exports = NoConcurrencyJob;
+module.exports = NoConcurrencyJob

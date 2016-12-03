@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
 class ErrorJob {
 
-  static get concurrency() {
-    return 1;
+  static get concurrency () {
+    return 1
   }
 
-  static get key() {
-    return 'error-job';
+  static get key () {
+    return 'error-job'
   }
 
-  handle(data) {
-    throw new Error('test error');
+  handle (data) {
+    throw new Error('test error')
   }
 
 }
 
-module.exports = ErrorJob;
+module.exports = ErrorJob

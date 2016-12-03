@@ -44,5 +44,5 @@ module.exports = {
     if (valueType !== expectedType) {
       throw new InvalidArgumentException(`Expected ${paramName} to be of type '${expectedType}' but got '${valueType}'.`)
     }
-  },
+  }
 }
