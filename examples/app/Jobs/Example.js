@@ -8,6 +8,12 @@ class Example {
     return 1;
   }
 
+  // If this is set to true, all failed jobs will be re-inserted to the queue
+  // Useful for random errors
+  static get retry() {
+    return false;
+  }
+
   // This is required. This is a unique key used to identify this job.
   static get key() {
     return 'example-job';

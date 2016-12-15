@@ -115,6 +115,17 @@ class Kue {
               });
           });
 
+          // Put failed jobs again into the queue
+          if (Job.retry) {
+            this.instance.on('job failed', function(id, result) {
+              kue.Job.get(id, function(err, job) {
+                if (!err)
+                  logger.info(`Putting back into queue id=${job.id}`);
+                  job.state('inactive').save();
+              });
+            });
+          }
+
         } catch (e) {
           // If this file is not a valid javascript class, print warning and return
           if (e instanceof ReferenceError) {
