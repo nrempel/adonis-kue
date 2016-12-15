@@ -41,11 +41,11 @@ class Kue {
    *
    * @public
    */
-  dispatch(key, data) {
+  dispatch(key, data, attempts = 1) {
     if (typeof key !== 'string') {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
-    const job = this.instance.create(key, data).removeOnComplete(true).save(err => {
+    const job = this.instance.create(key, data).attempts(attempts).removeOnComplete(true).save(err => {
        if (err) {
         this.logger.error('An error has occurred while creating a Kue job.');
         throw err;
@@ -114,6 +114,17 @@ class Kue {
                 done(error);
               });
           });
+
+          // Put failed jobs again into the queue
+          if (Job.retry) {
+            this.instance.on('job failed', function(id, result) {
+              kue.Job.get(id, function(err, job) {
+                if (!err)
+                  logger.info(`Putting back into queue id=${job.id}`);
+                  job.state('inactive').save();
+              });
+            });
+          }
 
         } catch (e) {
           // If this file is not a valid javascript class, print warning and return
