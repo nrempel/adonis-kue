@@ -90,7 +90,7 @@ Now that your job listener is running and ready to do some asynchronous work, yo
 const kue = use('Kue');
 const Job = require('./app/Jobs/Example');
 const data = { test: 'data' };
-const job = kue.dispatch(Job.key, data);
+const job = kue.dispatch(Job.key, data); // Optionally send a third number parameter for maximum attempts
 
 // If you want to wait on the result, you can do this
 const result = yield job.result;

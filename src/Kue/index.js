@@ -41,11 +41,11 @@ class Kue {
    *
    * @public
    */
-  dispatch(key, data) {
+  dispatch(key, data, attempts = 1) {
     if (typeof key !== 'string') {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
-    const job = this.instance.create(key, data).removeOnComplete(true).save(err => {
+    const job = this.instance.create(key, data).attempts(attempts).removeOnComplete(true).save(err => {
        if (err) {
         this.logger.error('An error has occurred while creating a Kue job.');
         throw err;
