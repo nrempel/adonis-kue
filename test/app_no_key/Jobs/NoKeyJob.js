@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
 class NoKeyJob {
 
-  static get concurrency() {
-    return 1;
+  static get concurrency () {
+    return 1
   }
 
-  handle() {
+  handle () {
   }
 
 }
 
-module.exports = NoKeyJob;
+module.exports = NoKeyJob
