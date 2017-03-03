@@ -13,7 +13,7 @@ const Ioc = require('adonis-fold').Ioc;
  * @description Interface to the Kue job queue library
  */
 class Kue {
-  constructor (Helpers, Config) {
+  constructor(Helpers, Config) {
     this.logger = new CatLog('adonis:kue');
     this.jobsPath = path.join(Helpers.appPath(), 'Jobs');
     this.jobsPath = path.normalize(this.jobsPath);
@@ -21,6 +21,7 @@ class Kue {
     if (!this.connectionSettings) {
       throw new Error('Specify connection under config/kue file');
     }
+    this.removeOnComplete = Config.get('kue.removeOnComplete', true)
     this._instance = null;
     this.registeredJobs = [];
   }
@@ -29,7 +30,7 @@ class Kue {
    * @returns {*}
    * @public
    */
-  get instance () {
+  get instance() {
     if (!this._instance) {
       this._instance = kue.createQueue(this.connectionSettings);
     }
@@ -45,8 +46,8 @@ class Kue {
     if (typeof key !== 'string') {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
-    const job = this.instance.create(key, data).removeOnComplete(true).save(err => {
-       if (err) {
+    const job = this.instance.create(key, data).removeOnComplete(this.removeOnComplete).save(err => {
+      if (err) {
         this.logger.error('An error has occurred while creating a Kue job.');
         throw err;
       }
@@ -67,14 +68,14 @@ class Kue {
    *
    * @public
    */
-  listen () {
+  listen() {
     try {
       const jobFiles = fs.readdirSync(this.jobsPath);
       jobFiles.forEach(file => {
         const filePath = path.join(this.jobsPath, file);
         try {
           const Job = require(filePath);
-          
+
           // Get instance of job class
           const jobInstance = Ioc.make(Job);
 
@@ -102,7 +103,7 @@ class Kue {
           this.registeredJobs.push(Job);
 
           // Register job handler
-          this.instance.process(Job.key, Job.concurrency, function (job, done) {
+          this.instance.process(Job.key, Job.concurrency, function(job, done) {
             co(jobInstance.handle.bind(jobInstance), job.data)
               .then(result => { done(null, result); })
               .catch(error => {

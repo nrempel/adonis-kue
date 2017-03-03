@@ -54,10 +54,12 @@ Add a configuration file in `config/kue.js`. For example:
 const Env = use('Env');
 
 module.exports = {
-  prefix: 'q',
-  redis: Env.get('REDIS_URL')
+  removeOnComplete: true,
+  connection: {
+    prefix: 'q',
+    redis: Env.get('REDIS_URL')
+  }
 };
-
 ```
 
 See the [Kue Documentation](https://github.com/Automattic/kue#redis-connection-settings) for more connection options.
@@ -84,7 +86,7 @@ Jobs are easy to create. They live in `app/Jobs` and they are a simple class. Th
 
 ### Dispatching jobs
 
-Now that your job listener is running and ready to do some asynchronous work, you can start dispatching jobs. 
+Now that your job listener is running and ready to do some asynchronous work, you can start dispatching jobs.
 
 ```javascript
 const kue = use('Kue');
