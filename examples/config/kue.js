@@ -1,7 +1,8 @@
 'use strict';
 
 module.exports = {
-  connection:{
+  removeOnComplete: true,
+  connection: {
     prefix: 'q',
     redis: {
       host: 'localhost',
