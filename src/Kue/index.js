@@ -37,16 +37,21 @@ class Kue {
   }
 
   /**
-   * Dispatch a new job.
-   *
-   * @public
-   */
-  dispatch(key, data) {
+  * Dispatch a new job.
+  * @param  {String} key
+  * @param  {Mixed} data       Data to be passed to job
+  * @param  {String} priority  Priority of job
+  * @param  {Number} attempts  How many times to attempt the job
+  * @param  {Boolean} remove   Should completed jobs be removed from kue
+  * @returns {Object}          Kue job instance
+  * @public
+  */
+  dispatch (key, data, priority = 'normal', attempts = 1, remove = true) {
     if (typeof key !== 'string') {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
     }
-    const job = this.instance.create(key, data).removeOnComplete(true).save(err => {
-       if (err) {
+    const job = this.instance.create(key, data).priority(priority).attempts(attempts).removeOnComplete(remove).save(err => {
+      if (err) {
         this.logger.error('An error has occurred while creating a Kue job.');
         throw err;
       }

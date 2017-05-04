@@ -89,8 +89,11 @@ Now that your job listener is running and ready to do some asynchronous work, yo
 ```javascript
 const kue = use('Kue');
 const Job = require('./app/Jobs/Example');
-const data = { test: 'data' };
-const job = kue.dispatch(Job.key, data);
+const data = { test: 'data' }; // Data to be passed to job handle
+const priority = 'normal'; // Priority of job, can be low, normal, medium, high or critical
+const attempts = 1; // Number of times to attempt job if it fails
+const remove = true; // Should jobs be automatically removed on completion
+const job = kue.dispatch(Job.key, data, priority, attempts, remove);
 
 // If you want to wait on the result, you can do this
 const result = yield job.result;
