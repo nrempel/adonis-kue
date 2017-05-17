@@ -54,8 +54,10 @@ Add a configuration file in `config/kue.js`. For example:
 const Env = use('Env');
 
 module.exports = {
-  prefix: 'q',
-  redis: Env.get('REDIS_URL')
+  connection:{
+    prefix: 'q',
+    redis: Env.get('REDIS_URL')
+  }
 };
 
 ```
