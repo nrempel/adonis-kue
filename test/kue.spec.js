@@ -83,6 +83,78 @@ describe('Kue', function () {
     expect(job.type).to.equal(Job.key);
     expect(job.data).to.equal(data);
   });
+  
+  it('Should be able to dispatch jobs with default priority', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    const job = kue.dispatch(Job.key, data, undefined);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
+    console.log(job)
+    expect(job._priority).to.equal(0);
+  });
+  
+  it('Should be able to dispatch jobs with a priority', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    const priority = 'high'
+    const job = kue.dispatch(Job.key, data, priority);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
+    expect(job._priority).to.equal(-10);
+  });
+  
+  it('Should be able to dispatch jobs with default max attempts limit', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    const job = kue.dispatch(Job.key, data, undefined, undefined);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
+    expect(job._max_attempts).to.equal(1);
+  });
+  
+  it('Should be able to dispatch jobs with a max attempts limit', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    const attempts = 5
+    const job = kue.dispatch(Job.key, data, undefined, attempts);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
+    expect(job._max_attempts).to.equal(attempts);
+  });
+  
+  it('Should be able to dispatch jobs with default removeOnComplete', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    const job = kue.dispatch(Job.key, data, undefined);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
+    console.log(job)
+    expect(job._removeOnComplete).to.equal(true);
+  });
+  
+  it('Should be able to dispatch jobs with a configured removeOnComplete', function * () {
+    this.timeout(0);
+    const kue = new Kue(Helpers, Config);
+    const Job = require('./app/Jobs/GoodJob');
+    const data = { test: 'data' };
+    const remove = false
+    const job = kue.dispatch(Job.key, data, undefined, undefined, remove);
+    expect(job.type).to.equal(Job.key);
+    expect(job.data).to.equal(data);
+    console.log(job)
+    expect(job._removeOnComplete).to.equal(false);
+  });
 
   it('Should be able to wait on result of job', function * () {
     this.timeout(0);
