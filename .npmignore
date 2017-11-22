@@ -43,3 +43,4 @@ examples
 test
 japaFile.js
 README.md
+.travis.yml
