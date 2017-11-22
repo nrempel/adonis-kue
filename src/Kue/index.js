@@ -1,28 +1,20 @@
-'use strict';
+'use strict'
 
-const co = require('co');
-const fs = require('fs');
-const kue = require('kue');
-const path = require('path');
-const CatLog = require('cat-log');
-const logger = new CatLog('adonis:kue');
-const Ioc = require('adonis-fold').Ioc;
+const kue = require('kue')
+const { ioc } = require('@adonisjs/fold')
 
 /**
  * @module Kue
  * @description Interface to the Kue job queue library
  */
 class Kue {
-  constructor (Helpers, Config) {
-    this.logger = new CatLog('adonis:kue');
-    this.jobsPath = path.join(Helpers.appPath(), 'Jobs');
-    this.jobsPath = path.normalize(this.jobsPath);
-    this.connectionSettings = Config.get('kue.connection');
-    if (!this.connectionSettings) {
-      throw new Error('Specify connection under config/kue file');
-    }
-    this._instance = null;
-    this.registeredJobs = [];
+  constructor (Logger, Redis, config = {}, jobs = []) {
+    this.Redis = Redis
+    this.Logger = Logger
+    this.jobs = jobs
+    this.config = config
+    this._instance = null
+    this.registeredJobs = []
   }
 
   /**
@@ -31,113 +23,113 @@ class Kue {
    */
   get instance () {
     if (!this._instance) {
-      this._instance = kue.createQueue(this.connectionSettings);
+      const options = {
+        redis: {
+          createClientFactory: () => {
+            const { connection } = this.config
+            const client = this.Redis.connection(connection).duplicate()
+            return new Proxy(client, {
+              get (target, key) {
+                if (key === 'getKey') {
+                  return function (key) {
+                    return `{${this.prefix}}:${key}`
+                  }
+                }
+                return target[key]
+              }
+            })
+          }
+        }
+      }
+      this._instance = kue.createQueue(options)
     }
-    return this._instance;
+    return this._instance
   }
 
   /**
-   * Dispatch a new job.
-   *
-   * @public
-   */
-  dispatch(key, data) {
+  * Dispatch a new job.
+  * @param  {String} key
+  * @param  {Mixed} data       Data to be passed to job
+  * @param  {String} priority  Priority of job
+  * @param  {Number} attempts  How many times to attempt the job
+  * @param  {Boolean} remove   Should completed jobs be removed from kue
+  * @returns {Object}          Kue job instance
+  * @public
+  */
+  dispatch (key, data, priority = 'normal', attempts = 1, remove = true) {
     if (typeof key !== 'string') {
-      throw new Error(`Expected job key to be of type string but got <${typeof key}>.`);
+      throw new Error(`Expected job key to be of type string but got <${typeof key}>.`)
     }
-    const job = this.instance.create(key, data).removeOnComplete(true).save(err => {
-       if (err) {
-        this.logger.error('An error has occurred while creating a Kue job.');
-        throw err;
-      }
-    });
+    const job = this.instance
+      .create(key, data)
+      .priority(priority)
+      .attempts(attempts)
+      .removeOnComplete(remove)
+      .save(err => {
+        if (err) {
+          this.Logger.error('An error has occurred while creating a Kue job.')
+          throw err
+        }
+      })
 
     // Add promise proxy on job for complete event
     job.result = new Promise((resolve, reject) => {
       job.on('complete', result => {
-        resolve(result);
-      });
-    });
+        resolve(result)
+      })
+    })
 
-    return job;
+    return job
   }
 
   /**
-   * Start queue to process all jobs defined in app/Jobs
+   * Start queue to process all jobs defined in start/app.js
    *
    * @public
    */
   listen () {
-    try {
-      const jobFiles = fs.readdirSync(this.jobsPath);
-      jobFiles.forEach(file => {
-        const filePath = path.join(this.jobsPath, file);
-        try {
-          const Job = require(filePath);
-          
-          // Get instance of job class
-          const jobInstance = Ioc.make(Job);
+    this.jobs.forEach(link => {
+      const Job = ioc.use(link)
 
-          // Every job must expose a key
-          if (!Job.key) {
-            throw new Error(`No key found for job: ${filePath}`);
-          }
-
-          // If job concurrency is not set, default to 1
-          if (Job.concurrency === undefined) {
-            Job.concurrency = 1;
-          }
-
-          // If job concurrecny is set to an invalid value, throw error
-          if (typeof Job.concurrency !== 'number') {
-            throw new Error(`Job concurrency value must be a number but instead it is: <${Job.concurrency}>`);
-          }
-
-          // Every job must expose a handle function
-          if (!jobInstance.handle) {
-            throw new Error(`No handler found for job: ${filePath}`);
-          }
-
-          // Track currently registered jobs in memory
-          this.registeredJobs.push(Job);
-
-          // Register job handler
-          this.instance.process(Job.key, Job.concurrency, function (job, done) {
-            co(jobInstance.handle.bind(jobInstance), job.data)
-              .then(result => { done(null, result); })
-              .catch(error => {
-                logger.error(
-                  'Error processing job. ' +
-                  `type=${job.type} id=${job.id}`
-                );
-                console.error(error);
-                done(error);
-              });
-          });
-
-        } catch (e) {
-          // If this file is not a valid javascript class, print warning and return
-          if (e instanceof ReferenceError) {
-            this.logger.warn('Unable to import job class <%s>. Is it a valid javascript class?', file);
-            return;
-          } else {
-            this.logger.error(e);
-            throw e;
-          }
-        }
-      });
-      this.logger.info('kue worker listening for %d jobs', this.registeredJobs.length);
-    } catch (e) {
-      // If the directory isn't found, log a message and exit gracefully
-      if (e.code === 'ENOENT') {
-        this.logger.info('The jobs directory <%s> does not exist. Exiting.', this.jobsPath);
-      } else {
-        // If it's some other error, bubble up exception
-        this.logger.error(e);
-        throw e;
+      // Every job must expose a key
+      if (!Job.key) {
+        throw new Error(`No key found for job: ${link}`)
       }
-    }
+
+      // If job concurrency is not set, default to 1
+      if (Job.concurrency === undefined) {
+        Job.concurrency = 1
+      }
+
+      // If job concurrecny is set to an invalid value, throw error
+      if (typeof Job.concurrency !== 'number') {
+        throw new Error(`Job concurrency value must be a number but instead it is: <${typeof Job.concurrency}>`)
+      }
+
+      const jobInstance = ioc.make(Job)
+
+      // Every job must expose a handle function
+      if (!jobInstance.handle) {
+        throw new Error(`No handler found for job: ${link}`)
+      }
+
+      // Track currently registered jobs in memory
+      this.registeredJobs.push(Job)
+
+      // Register job handler
+      this.instance.process(Job.key, Job.concurrency, (job, done) => {
+        jobInstance.handle(job.data)
+          .then(result => {
+            done(null, result)
+          })
+          .catch(error => {
+            this.Logger.error(`Error processing job. type=${job.type} id=${job.id}`)
+            done(error)
+          })
+      })
+    })
+    this.Logger.info(`kue worker listening for ${this.registeredJobs.length} job(s)`)
   }
 }
 
-module.exports = Kue;
+module.exports = Kue

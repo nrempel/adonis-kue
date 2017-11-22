@@ -2,34 +2,61 @@
   "name": "adonis-kue",
   "version": "3.1.1",
   "description": "Kue provider for the Adonis framework",
-  "main": "index.js",
+  "main": "src/Kue/index.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
-    "test": "istanbul cover _mocha -- -R spec test",
-    "coverage": "istanbul cover ./node_modules/.bin/_mocha test",
-    "eslint": "eslint ."
+    "pretest": "npm run lint",
+    "posttest": "npm run coverage",
+    "test": "ENV_SILENT=true NO_ANSI=false FORCE_COLOR=true nyc node ./bin/index.js --local",
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "precommit": "npm run test && lint-staged",
+    "prepush": "npm run test && lint-staged",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run lint:fix",
+      "git add"
+    ]
   },
   "author": "Nicholas Rempel <nbrempel@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "co": "^4.6.0",
-    "kue": "^0.11.1"
-  },
-  "peerDependencies": {
-    "adonis-fold": "^3.0.1"
+    "kue": "^0.11.6"
   },
   "devDependencies": {
-    "adonis-fold": "^3.0.1",
-    "chai": "^3.2.0",
-    "co": "^4.6.0",
-    "co-mocha": "^1.1.2",
-    "coveralls": "^2.11.4",
-    "eslint-config-airbnb": "^9.0.1",
-    "istanbul": "^0.3.20",
-    "mocha": "^2.3.2",
-    "mocha-lcov-reporter": "0.0.2"
+    "@adonisjs/ace": "^4.0.7",
+    "@adonisjs/fold": "^4.0.5",
+    "@adonisjs/framework": "^4.0.27",
+    "@adonisjs/redis": "^2.0.3",
+    "@adonisjs/sink": "^1.0.13",
+    "child_process": "^1.0.2",
+    "coveralls": "^3.0.0",
+    "dotenv": "^4.0.0",
+    "husky": "^0.13.4",
+    "japa": "^1.0.5",
+    "japa-cli": "^1.0.1",
+    "lint-staged": "^4.0.0",
+    "nyc": "^11.3.0",
+    "semver": "^5.3.0",
+    "standard": "^10.0.2",
+    "walk-sync": "^0.3.2"
   },
-  "directories": {
-    "test": "test"
+  "nyc": {
+    "include": [
+      "src",
+      "providers",
+      "commands"
+    ]
+  },
+  "standard": {
+    "globals": [
+      "use",
+      "make"
+    ]
   },
   "repository": {
     "type": "git",

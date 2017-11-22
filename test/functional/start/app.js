@@ -1,5 +1,7 @@
 'use strict'
 
 module.exports = {
-  connection: 'kue'
+  jobs: [
+    'App/GoodJob'
+  ]
 }

@@ -12,7 +12,7 @@ npm install --save adonis-kue
 
 ## Configure
 
-Register it in `bootstrap/app.js`:
+Register the kue provider in `start/app.js`:
 
 ```javascript
 const providers = [
@@ -21,46 +21,36 @@ const providers = [
 ]
 ```
 
-Also consider adding an alias to validation provider.
-
-```javascript
-const aliases = {
-  ...
-  Kue: 'Adonis/Addons/Kue'
-}
-```
-
-Register the commands:
+Register the commands provider in `start/app.js`:
 
 ```javascript
 const aceProviders = [
   ...
   'adonis-kue/providers/CommandsProvider'
-];
+]
+```
 
-...
+Register the jobs in `start/app.js`:
 
-const commands = [
+```javascript
+const jobs = [
   ...
-  'Adonis/Commands/Kue:Listen'
-];
+  'App/Jobs/Example'
+]
 ```
 
 Add a configuration file in `config/kue.js`. For example:
 
 ```javascript
-'use strict';
+'use strict'
 
-const Env = use('Env');
+const Env = use('Env')
 
 module.exports = {
-  prefix: 'q',
-  redis: Env.get('REDIS_URL')
-};
-
+  // redis connection
+  connection: Env.get('KUE_CONNECTION', 'kue')
+}
 ```
-
-See the [Kue Documentation](https://github.com/Automattic/kue#redis-connection-settings) for more connection options.
 
 ## Usage
 
@@ -68,14 +58,12 @@ See the [Kue Documentation](https://github.com/Automattic/kue#redis-connection-s
 
 Starting an instance of the kue listener is easy with the included ace command. Simply run `./ace kue:listen`.
 
-The provider looks for jobs in the `app/Jobs` directory of your AdonisJS project and will automatically register a handler for any jobs that it finds.
-
 ### Creating your first job
 
-Jobs are easy to create. They live in `app/Jobs` and they are a simple class. They expose the following properties:
+They expose the following properties:
 
 | Name        | Required | Type      | Static | Description                                           |
-|-------------|----------|-----------|--------|-----------------------------------------------|
+|-------------|----------|-----------|--------|-------------------------------------------------------|
 | concurrency | false    | number    | true   | The number of concurrent jobs the handler will accept |
 | key         | true     | string    | true   | A unique key for this job                             |
 | handle      | true     | function  | false  | A function that is called for this job.               |
@@ -84,16 +72,19 @@ Jobs are easy to create. They live in `app/Jobs` and they are a simple class. Th
 
 ### Dispatching jobs
 
-Now that your job listener is running and ready to do some asynchronous work, you can start dispatching jobs. 
+Now that your job listener is running and ready to do some asynchronous work, you can start dispatching jobs.
 
 ```javascript
-const kue = use('Kue');
-const Job = require('./app/Jobs/Example');
-const data = { test: 'data' };
-const job = kue.dispatch(Job.key, data);
+const kue = use('Kue')
+const Job = use('App/Jobs/Example')
+const data = { test: 'data' } // Data to be passed to job handle
+const priority = 'normal' // Priority of job, can be low, normal, medium, high or critical
+const attempts = 1 // Number of times to attempt job if it fails
+const remove = true // Should jobs be automatically removed on completion
+const job = kue.dispatch(Job.key, data, priority, attempts, remove)
 
 // If you want to wait on the result, you can do this
-const result = yield job.result;
+const result = await job.result
 ```
 
 ## Thanks

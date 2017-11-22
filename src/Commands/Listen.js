@@ -1,26 +1,30 @@
-'user strict';
+'user strict'
 
-const Ioc = require('adonis-fold').Ioc;
-const Command = Ioc.use('Adonis/Src/Command');
+const { Command } = require('@adonisjs/ace')
 
 class Listen extends Command {
+  static get inject () {
+    return [
+      'Adonis/Addons/Kue'
+    ]
+  }
 
   constructor (Kue) {
-    super();
-    this.kue = Kue;
+    super()
+    this.Kue = Kue
   }
 
-  get signature () {
-    return 'kue:listen';
+  static get signature () {
+    return 'kue:listen'
   }
 
-  get description () {
-    return 'Start the kue listener.';
+  static get description () {
+    return 'Start the kue listener.'
   }
 
-  * handle (options, flags) {
-    this.kue.listen();
+  handle () {
+    return this.Kue.listen()
   }
 }
 
-module.exports = Listen;
+module.exports = Listen

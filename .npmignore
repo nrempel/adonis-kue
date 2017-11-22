@@ -38,3 +38,8 @@ jspm_packages
 
 package-lock.json
 .coveralls.yml
+bin
+examples
+test
+japaFile.js
+README.md
