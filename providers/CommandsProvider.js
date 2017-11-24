@@ -1,15 +1,16 @@
-'use strict';
+'use strict'
 
-const ServiceProvider = require('adonis-fold').ServiceProvider;
+const { ServiceProvider } = require('@adonisjs/fold')
 
 class CommandsProvider extends ServiceProvider {
-  * register () {
-    this.app.bind('Adonis/Commands/Kue:Listen', function (app) {
-      const Kue = app.use('Adonis/Addons/Kue');
-      const Listen = require('../src/Commands/Listen');
-      return new Listen(Kue);
-    });
+  register () {
+    this.app.bind('Adonis/Commands/Kue:Listen', () => require('../src/Commands/Listen'))
+  }
+
+  boot () {
+    const ace = require('@adonisjs/ace')
+    ace.addCommand('Adonis/Commands/Kue:Listen')
   }
 }
 
-module.exports = CommandsProvider;
+module.exports = CommandsProvider

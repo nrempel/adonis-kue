@@ -1,16 +1,22 @@
-'use strict';
+'use strict'
 
-const ServiceProvider = require('adonis-fold').ServiceProvider;
+const path = require('path')
+const { ServiceProvider } = require('@adonisjs/fold')
 
 class KueProvider extends ServiceProvider {
-  * register () {
+  register () {
     this.app.singleton('Adonis/Addons/Kue', function (app) {
-      const Helpers = app.use('Adonis/Src/Helpers');
-      const Config = app.use('Adonis/Src/Config');
-      const Kue = require('../src/Kue');
-      return new Kue(Helpers, Config);
-    });
+      const Helpers = app.use('Adonis/Src/Helpers')
+      const Logger = app.use('Adonis/Src/Logger')
+      const Config = app.use('Adonis/Src/Config')
+      const Redis = app.use('Adonis/Addons/Redis')
+      const Kue = require('../src/Kue')
+      const { jobs } = require(path.join(Helpers.appRoot(), 'start/app.js')) || {}
+      return new Kue(Logger, Redis, Config.get('kue'), jobs || [])
+    })
+
+    this.app.alias('Adonis/Addons/Kue', 'Kue')
   }
 }
 
-module.exports = KueProvider;
+module.exports = KueProvider
