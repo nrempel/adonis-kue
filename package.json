@@ -14,7 +14,7 @@
     "lint:fix": "standard --fix",
     "precommit": "npm run test && lint-staged",
     "prepush": "npm run test && lint-staged",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov"
   },
   "lint-staged": {
     "*.js": [
