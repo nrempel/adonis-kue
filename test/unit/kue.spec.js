@@ -68,7 +68,7 @@ test.group('Kue', (group) => {
     ])
     const Job = ioc.use('Test/Jobs/GoodJob')
     const data = { test: 'data' }
-    const job = kue.dispatch(Job.key, data, undefined)
+    const job = kue.dispatch(Job.key, data)
     assert.equal(job.type, Job.key)
     assert.equal(job.data, data)
     assert.equal(job._priority, 0)
@@ -82,7 +82,7 @@ test.group('Kue', (group) => {
     const Job = ioc.use('Test/Jobs/GoodJob')
     const data = { test: 'data' }
     const priority = 'high'
-    const job = kue.dispatch(Job.key, data, priority)
+    const job = kue.dispatch(Job.key, data, { priority })
     assert.equal(job.type, Job.key)
     assert.equal(job.data, data)
     assert.equal(job._priority, -10)
@@ -95,7 +95,7 @@ test.group('Kue', (group) => {
     ])
     const Job = ioc.use('Test/Jobs/GoodJob')
     const data = { test: 'data' }
-    const job = kue.dispatch(Job.key, data, undefined, undefined)
+    const job = kue.dispatch(Job.key, data)
     assert.equal(job.type, Job.key)
     assert.equal(job.data, data)
     assert.equal(job._max_attempts, 1)
@@ -109,7 +109,7 @@ test.group('Kue', (group) => {
     const Job = ioc.use('Test/Jobs/GoodJob')
     const data = { test: 'data' }
     const attempts = 5
-    const job = kue.dispatch(Job.key, data, undefined, attempts)
+    const job = kue.dispatch(Job.key, data, { attempts })
     assert.equal(job.type, Job.key)
     assert.equal(job.data, data)
     assert.equal(job._max_attempts, attempts)
@@ -122,7 +122,7 @@ test.group('Kue', (group) => {
     ])
     const Job = ioc.use('Test/Jobs/GoodJob')
     const data = { test: 'data' }
-    const job = kue.dispatch(Job.key, data, undefined)
+    const job = kue.dispatch(Job.key, data)
     assert.equal(job.type, Job.key)
     assert.equal(job.data, data)
     assert.equal(job._removeOnComplete, true)
@@ -135,10 +135,29 @@ test.group('Kue', (group) => {
     ])
     const Job = ioc.use('Test/Jobs/GoodJob')
     const data = { test: 'data' }
-    const job = kue.dispatch(Job.key, data, undefined, undefined, false)
+    const job = kue.dispatch(Job.key, data, { remove: false })
     assert.equal(job.type, Job.key)
     assert.equal(job.data, data)
     assert.equal(job._removeOnComplete, false)
+  })
+
+  test('Should handle extra job functions', (assert) => {
+    ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
+    const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
+      'Test/Jobs/GoodJob'
+    ])
+    const Job = ioc.use('Test/Jobs/GoodJob')
+    const data = { test: 'data' }
+    const job = kue.dispatch(Job.key, data, {
+      attempts: 1, // configure a base attempts
+      jobFn: job => {
+        // override it using the jobFn
+        job.attempts(5)
+      }
+    })
+    assert.equal(job.type, Job.key)
+    assert.equal(job.data, data)
+    assert.equal(job._max_attempts, 5)
   })
 
   test('Should be able to wait on result of job', async (assert) => {
