@@ -5,6 +5,7 @@ const path = require('path')
 const ace = require('@adonisjs/ace')
 const { ioc, registrar, resolver } = require('@adonisjs/fold')
 const { Helpers, Config } = require('@adonisjs/sink')
+const fs = require('fs')
 
 test.group('Commands', (group) => {
   group.before(async () => {
@@ -62,5 +63,17 @@ test.group('Commands', (group) => {
     assert.equal(result, 'test result')
     assert.equal(job.type, Job.key)
     assert.equal(job.data, data)
+  })
+
+  test('Create a job', async (assert) => {
+    await ace.call('make:job', { name: 'Test' })
+    assert.isTrue(fs.existsSync(path.join(__dirname, '../../app/Jobs/Test.js')))
+  })
+
+  test('Create a job with the same name', async (assert) => {
+    await ace.call('make:job', { name: 'Test' })
+    const filePath = path.join(__dirname, '../../app/Jobs/Test.js')
+    assert.isTrue(fs.existsSync(filePath))
+    fs.unlinkSync(filePath)
   })
 })

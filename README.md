@@ -39,6 +39,12 @@ const jobs = [
 ]
 ```
 
+And then export the `jobs` array:
+
+```js
+module.exports = { providers, aceProviders, aliases, commands, jobs }
+```
+
 Add a configuration file in `config/kue.js`. For example:
 
 ```javascript
@@ -54,11 +60,18 @@ module.exports = {
 
 ## Usage
 
+### Command List
+Command               | Description
+:---------------------|:-----------
+ `adonis kue:listen`  | Starting the listener
+ `adonis make:job`    | Make a new Job (Queue)
+
 ### Starting the listener
 
-Starting an instance of the kue listener is easy with the included ace command. Simply run `./ace kue:listen`.
+Starting an instance of the kue listener is easy with the included ace command. Simply run `./ace kue:listen` or `adonis kue:listen`.
 
 ### Creating your first job
+
 
 They expose the following properties:
 
