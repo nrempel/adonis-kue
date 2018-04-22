@@ -56,7 +56,7 @@ class Kue {
   * @returns {Object}          Kue job instance
   * @public
   */
-  dispatch (key, data, priority = 'normal', attempts = 1, remove = true) {
+  dispatch (key, data, { priority = 'normal', attempts = 1, remove = true, jobFn = () => {} } = {}) {
     if (typeof key !== 'string') {
       throw new Error(`Expected job key to be of type string but got <${typeof key}>.`)
     }
@@ -65,12 +65,16 @@ class Kue {
       .priority(priority)
       .attempts(attempts)
       .removeOnComplete(remove)
-      .save(err => {
-        if (err) {
-          this.Logger.error('An error has occurred while creating a Kue job.')
-          throw err
-        }
-      })
+
+    // allow custom functions to be called on the job, e.g. backoff
+    jobFn(job)
+
+    job.save(err => {
+      if (err) {
+        this.Logger.error('An error has occurred while creating a Kue job.')
+        throw err
+      }
+    })
 
     // Add promise proxy on job for complete event
     job.result = new Promise((resolve, reject) => {
