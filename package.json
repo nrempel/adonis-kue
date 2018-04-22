@@ -25,7 +25,9 @@
   "author": "Nicholas Rempel <nbrempel@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "kue": "^0.11.6"
+    "boxen": "^1.3.0",
+    "kue": "^0.11.6",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "@adonisjs/ace": "^4.0.7",
