@@ -88,6 +88,87 @@ test.group('Kue', (group) => {
     assert.equal(job._priority, -10)
   })
 
+  test('Should be able to dispatch jobs with default delay', (assert) => {
+    ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
+    const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
+      'Test/Jobs/GoodJob'
+    ])
+    const Job = ioc.use('Test/Jobs/GoodJob')
+    const data = { test: 'data' }
+    const job = kue.dispatch(Job.key, data)
+    assert.equal(job.type, Job.key)
+    assert.equal(job.data, data)
+    assert.equal(job._delay, undefined)
+  })
+
+  test('Should be able to dispatch jobs with a delay', (assert) => {
+    ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
+    const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
+      'Test/Jobs/GoodJob'
+    ])
+    const Job = ioc.use('Test/Jobs/GoodJob')
+    const data = { test: 'data' }
+    const delay = 10
+    const job = kue.dispatch(Job.key, data, { delay })
+    assert.equal(job.type, Job.key)
+    assert.equal(job.data, data)
+    assert.equal(job._delay, 10)
+  })
+
+  test('Should be able to dispatch jobs with default backoff', (assert) => {
+    ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
+    const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
+      'Test/Jobs/GoodJob'
+    ])
+    const Job = ioc.use('Test/Jobs/GoodJob')
+    const data = { test: 'data' }
+    const job = kue.dispatch(Job.key, data)
+    assert.equal(job.type, Job.key)
+    assert.equal(job.data, data)
+    assert.equal(job._backoff, undefined)
+  })
+
+  test('Should be able to dispatch jobs with a backoff', (assert) => {
+    ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
+    const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
+      'Test/Jobs/GoodJob'
+    ])
+    const Job = ioc.use('Test/Jobs/GoodJob')
+    const data = { test: 'data' }
+    const backoff = true
+    const job = kue.dispatch(Job.key, data, { backoff })
+    assert.equal(job.type, Job.key)
+    assert.equal(job.data, data)
+    assert.equal(job._backoff, true)
+  })
+
+  test('Should be able to dispatch jobs with default ttl', (assert) => {
+    ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
+    const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
+      'Test/Jobs/GoodJob'
+    ])
+    const Job = ioc.use('Test/Jobs/GoodJob')
+    const data = { test: 'data' }
+    const job = kue.dispatch(Job.key, data)
+    assert.equal(job.type, Job.key)
+    assert.equal(job.data, data)
+    assert.equal(job._ttl, undefined)
+  })
+
+  test('Should be able to dispatch jobs with a ttl', (assert) => {
+    ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
+    const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
+      'Test/Jobs/GoodJob'
+    ])
+    const Job = ioc.use('Test/Jobs/GoodJob')
+    const data = { test: 'data' }
+    const ttl = 10
+    const job = kue.dispatch(Job.key, data, { ttl })
+    assert.equal(job.type, Job.key)
+    assert.equal(job.data, data)
+    assert.equal(job._ttl, 10)
+  })
+
   test('Should be able to dispatch jobs with default max attempts limit', (assert) => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
