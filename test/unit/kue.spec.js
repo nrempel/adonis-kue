@@ -10,13 +10,9 @@ const kueConfig = {
   connection: 'kue'
 }
 
-test.group('Kue', (group) => {
+test.group('Kue', group => {
   group.before(async () => {
-    registrar
-      .providers([
-        '@adonisjs/redis/providers/RedisProvider'
-      ])
-      .register()
+    registrar.providers(['@adonisjs/redis/providers/RedisProvider']).register()
     ioc.bind('Adonis/Src/Helpers', () => {
       return new Helpers(path.join(__dirname, '..'))
     })
@@ -38,6 +34,14 @@ test.group('Kue', (group) => {
           keyPrefix: 'q'
         }
       })
+      config.set('app', {
+        logger: {
+          transport: 'console',
+          console: {
+            driver: 'console'
+          }
+        }
+      })
       return config
     })
     ioc.alias('Adonis/Src/Config', 'Config')
@@ -49,7 +53,7 @@ test.group('Kue', (group) => {
     ioc.restore()
   })
 
-  test('Should be able to dispatch jobs with data', (assert) => {
+  test('Should be able to dispatch jobs with data', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -61,7 +65,7 @@ test.group('Kue', (group) => {
     assert.equal(job.data, data)
   })
 
-  test('Should be able to dispatch jobs with default priority', (assert) => {
+  test('Should be able to dispatch jobs with default priority', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -74,7 +78,7 @@ test.group('Kue', (group) => {
     assert.equal(job._priority, 0)
   })
 
-  test('Should be able to dispatch jobs with a priority', (assert) => {
+  test('Should be able to dispatch jobs with a priority', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -88,7 +92,7 @@ test.group('Kue', (group) => {
     assert.equal(job._priority, -10)
   })
 
-  test('Should be able to dispatch jobs with default max attempts limit', (assert) => {
+  test('Should be able to dispatch jobs with default max attempts limit', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -101,7 +105,7 @@ test.group('Kue', (group) => {
     assert.equal(job._max_attempts, 1)
   })
 
-  test('Should be able to dispatch jobs with a max attempts limit', (assert) => {
+  test('Should be able to dispatch jobs with a max attempts limit', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -115,7 +119,7 @@ test.group('Kue', (group) => {
     assert.equal(job._max_attempts, attempts)
   })
 
-  test('Should be able to dispatch jobs with default removeOnComplete', (assert) => {
+  test('Should be able to dispatch jobs with default removeOnComplete', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -128,7 +132,7 @@ test.group('Kue', (group) => {
     assert.equal(job._removeOnComplete, true)
   })
 
-  test('Should be able to dispatch jobs with a configured removeOnComplete', (assert) => {
+  test('Should be able to dispatch jobs with a configured removeOnComplete', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -141,7 +145,7 @@ test.group('Kue', (group) => {
     assert.equal(job._removeOnComplete, false)
   })
 
-  test('Should handle extra job functions', (assert) => {
+  test('Should handle extra job functions', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -160,7 +164,7 @@ test.group('Kue', (group) => {
     assert.equal(job._max_attempts, 5)
   })
 
-  test('Should be able to wait on result of job', async (assert) => {
+  test('Should be able to wait on result of job', async assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -175,7 +179,7 @@ test.group('Kue', (group) => {
     assert.equal(job.data, data)
   })
 
-  test('Should be able to dispatch jobs with no data', (assert) => {
+  test('Should be able to dispatch jobs with no data', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -185,16 +189,19 @@ test.group('Kue', (group) => {
     assert.equal(job.type, Job.key)
   })
 
-  test('Should fail gracefully if dispatch is called with no key', (assert) => {
+  test('Should fail gracefully if dispatch is called with no key', assert => {
     const kue = new Kue(console, ioc.use('Redis'), kueConfig)
     try {
       kue.dispatch()
     } catch ({ message }) {
-      assert.equal(message, 'Expected job key to be of type string but got <undefined>.')
+      assert.equal(
+        message,
+        'Expected job key to be of type string but got <undefined>.'
+      )
     }
   })
 
-  test('Should fail gracefully if handler throws an error', (assert) => {
+  test('Should fail gracefully if handler throws an error', assert => {
     ioc.bind('Test/Jobs/ErrorJob', () => require('./fixtures/ErrorJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/ErrorJob'
@@ -207,17 +214,15 @@ test.group('Kue', (group) => {
     assert.equal(job.data, data)
   })
 
-  test('Should instantiate correctly', (assert) => {
+  test('Should instantiate correctly', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
-    const jobs = [
-      'Test/Jobs/GoodJob'
-    ]
+    const jobs = ['Test/Jobs/GoodJob']
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, jobs)
     assert.deepEqual(kue.config.connection, kueConfig.connection)
     assert.equal(kue.jobs, jobs)
   })
 
-  test('Should load jobs correctly', (assert) => {
+  test('Should load jobs correctly', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -227,15 +232,17 @@ test.group('Kue', (group) => {
     assert.equal(kue.registeredJobs.length, 1)
   })
 
-  test('Should load correctly if no jobs exist', (assert) => {
+  test('Should load correctly if no jobs exist', assert => {
     const kue = new Kue(console, ioc.use('Redis'), kueConfig)
     kue.listen()
     assert.isOk(kue.instance)
     assert.equal(kue.registeredJobs.length, 0)
   })
 
-  test('Should fail if job does not provide handler', (assert) => {
-    ioc.bind('Test/Jobs/NoHandlerJob', () => require('./fixtures/NoHandlerJob'))
+  test('Should fail if job does not provide handler', assert => {
+    ioc.bind('Test/Jobs/NoHandlerJob', () =>
+      require('./fixtures/NoHandlerJob')
+    )
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/NoHandlerJob'
     ])
@@ -246,7 +253,7 @@ test.group('Kue', (group) => {
     }
   })
 
-  test('Should fail if job does not provide key', (assert) => {
+  test('Should fail if job does not provide key', assert => {
     ioc.bind('Test/Jobs/NoKeyJob', () => require('./fixtures/NoKeyJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/NoKeyJob'
@@ -258,8 +265,10 @@ test.group('Kue', (group) => {
     }
   })
 
-  test('Should default concurrency to 1 if none provided', (assert) => {
-    ioc.bind('Test/Jobs/NoConcurrencyJob', () => require('./fixtures/NoConcurrencyJob'))
+  test('Should default concurrency to 1 if none provided', assert => {
+    ioc.bind('Test/Jobs/NoConcurrencyJob', () =>
+      require('./fixtures/NoConcurrencyJob')
+    )
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/NoConcurrencyJob'
     ])
@@ -267,19 +276,24 @@ test.group('Kue', (group) => {
     assert.equal(kue.registeredJobs[0].concurrency, 1)
   })
 
-  test('Should fail if job provides invalid concurrency', (assert) => {
-    ioc.bind('Test/Jobs/BadConcurrencyJob', () => require('./fixtures/BadConcurrencyJob'))
+  test('Should fail if job provides invalid concurrency', assert => {
+    ioc.bind('Test/Jobs/BadConcurrencyJob', () =>
+      require('./fixtures/BadConcurrencyJob')
+    )
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/BadConcurrencyJob'
     ])
     try {
       kue.listen()
     } catch ({ message }) {
-      assert.equal(message, 'Job concurrency value must be a number but instead it is: <string>')
+      assert.equal(
+        message,
+        'Job concurrency value must be a number but instead it is: <string>'
+      )
     }
   })
 
-  test('Should throw an informative error if instance.create fails', (assert) => {
+  test('Should throw an informative error if instance.create fails', assert => {
     ioc.bind('Test/Jobs/GoodJob', () => require('./fixtures/GoodJob'))
     const kue = new Kue(console, ioc.use('Redis'), kueConfig, [
       'Test/Jobs/GoodJob'
@@ -287,7 +301,7 @@ test.group('Kue', (group) => {
     const Job = ioc.use('Test/Jobs/GoodJob')
     const data = { test: 'data' }
     kue.listen()
-    kue.instance.save = (func) => {
+    kue.instance.save = func => {
       func(new Error('test error'))
     }
 

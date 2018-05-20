@@ -7,7 +7,7 @@ const { ioc, registrar, resolver } = require('@adonisjs/fold')
 const { Helpers, Config } = require('@adonisjs/sink')
 const fs = require('fs')
 
-test.group('Commands', (group) => {
+test.group('Commands', group => {
   group.before(async () => {
     resolver.appNamespace('App')
     ioc.autoload(path.join(__dirname, './app'), 'App')
@@ -43,6 +43,14 @@ test.group('Commands', (group) => {
           keyPrefix: 'q'
         }
       })
+      config.set('app', {
+        logger: {
+          transport: 'console',
+          console: {
+            driver: 'console'
+          }
+        }
+      })
       return config
     })
     ioc.alias('Adonis/Src/Config', 'Config')
@@ -53,7 +61,7 @@ test.group('Commands', (group) => {
     ioc.restore()
   })
 
-  test('kue:listen', async (assert) => {
+  test('kue:listen', async assert => {
     const Kue = use('Adonis/Addons/Kue')
     const Job = ioc.use('App/GoodJob')
     await ace.call('kue:listen')
@@ -65,12 +73,14 @@ test.group('Commands', (group) => {
     assert.equal(job.data, data)
   })
 
-  test('Create a job', async (assert) => {
+  test('Create a job', async assert => {
     await ace.call('make:job', { name: 'Test' })
-    assert.isTrue(fs.existsSync(path.join(__dirname, '../../app/Jobs/Test.js')))
+    assert.isTrue(
+      fs.existsSync(path.join(__dirname, '../../app/Jobs/Test.js'))
+    )
   })
 
-  test('Create a job with the same name', async (assert) => {
+  test('Create a job with the same name', async assert => {
     await ace.call('make:job', { name: 'Test' })
     const filePath = path.join(__dirname, '../../app/Jobs/Test.js')
     assert.isTrue(fs.existsSync(filePath))
