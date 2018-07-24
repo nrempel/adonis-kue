@@ -5,7 +5,7 @@ const test = require('japa')
 const { ioc, registrar, resolver } = require('@adonisjs/fold')
 const { Helpers, Config } = require('@adonisjs/sink')
 
-test.group('Providers', (group) => {
+test.group('Providers', group => {
   group.before(async () => {
     resolver.appNamespace('App')
     registrar
@@ -31,6 +31,14 @@ test.group('Providers', (group) => {
           }
         }
       })
+      config.set('app', {
+        logger: {
+          transport: 'console',
+          console: {
+            driver: 'console'
+          }
+        }
+      })
       return config
     })
     ioc.alias('Adonis/Src/Config', 'Config')
@@ -41,12 +49,12 @@ test.group('Providers', (group) => {
     ioc.restore()
   })
 
-  test('KueProvider', async (assert) => {
+  test('KueProvider', async assert => {
     assert.isDefined(ioc.use('Adonis/Addons/Kue'))
     assert.isTrue(ioc._bindings['Adonis/Addons/Kue'].singleton)
   })
 
-  test('CommandsProvider', async (assert) => {
+  test('CommandsProvider', async assert => {
     assert.isDefined(ioc.use('Adonis/Commands/Kue:Listen'))
     assert.isFalse(ioc._bindings['Adonis/Commands/Kue:Listen'].singleton)
   })
