@@ -81,6 +81,9 @@ class Kue {
       job.on('complete', result => {
         resolve(result)
       })
+      job.on("failed", result => {
+        reject(result);
+      });
     })
 
     return job
