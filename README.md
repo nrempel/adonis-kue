@@ -8,6 +8,8 @@ This library provides an easy way to get started with an asynchronous job queue 
 
 ```
 npm install --save adonis-kue
+# or
+yarn add adonis-kue
 ```
 
 ## Configure
